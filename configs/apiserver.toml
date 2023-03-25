@@ -1,2 +1,5 @@
 bind_addr = ":8080"
 log_level = "debug"
+
+[store]
+database_url = "postgres://postgres:postgres@localhost:5432/lk?sslmode=disable"
