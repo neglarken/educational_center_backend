@@ -1,8 +1,9 @@
 CREATE TABLE child
 (
   id      SERIAL PRIMARY KEY NOT NULL,
-  name    TEXT   NOT NULL,
-  surname TEXT   NOT NULL,
+  first_name    TEXT   NOT NULL,
+  last_name TEXT   NOT NULL,
+  surname TEXT,
   user_id INT NOT NULL
 );
 
@@ -43,8 +44,8 @@ CREATE TABLE groups
 CREATE TABLE lesson
 (
   id           SERIAL PRIMARY KEY NOT NULL,
-  start_at     TIME   NOT NULL,
-  end_at       TIME   NOT NULL,
+  start_at     TIMESTAMP   NOT NULL,
+  end_at       TIMESTAMP   NOT NULL,
   classroom_id INT NOT NULL,
   course_id    INT NOT NULL,
   teacher_id   INT NOT NULL,

@@ -7,6 +7,14 @@ type UsersRepository struct {
 }
 
 func (r *UsersRepository) Create(u *model.Users) (*model.Users, error) {
+	if err := u.Validate(); err != nil {
+		return nil, err
+	}
+
+	if err := u.BeforeCreate(); err != nil {
+		return nil, err
+	}
+
 	if err := r.store.db.QueryRow(
 		"INSERT INTO users (login, password, first_name, last_name, surname, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
 		u.Login,
