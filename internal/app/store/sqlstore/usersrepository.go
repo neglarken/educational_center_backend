@@ -41,3 +41,23 @@ func (r *UsersRepository) FindByLogin(login string) (*model.Users, error) {
 	}
 	return u, nil
 }
+
+func (r *UsersRepository) Find(id int) (*model.Users, error) {
+	u := &model.Users{}
+	if err := r.store.db.QueryRow(
+		"SELECT id, login, password, first_name, last_name, surname, phone_number FROM users WHERE id = $1",
+		id,
+	).Scan(
+		&u.Id,
+		&u.Login,
+		&u.Password,
+		&u.FirstName,
+		&u.LastName,
+		&u.Surname,
+		&u.PhoneNumber,
+	); err != nil {
+		return nil, err
+	}
+
+	return u, nil
+}

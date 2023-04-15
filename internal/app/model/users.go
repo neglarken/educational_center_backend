@@ -8,21 +8,21 @@ import (
 )
 
 type Users struct {
-	Id                  int
-	Login               string // unique
-	UnencryptedPassword string
-	Password            string
-	FirstName           string
-	LastName            string
-	Surname             string // nullable
-	PhoneNumber         string // nullable
+	Id                  int    "json:\"id\""
+	Login               string "json:\"login\"" // unique
+	UnencryptedPassword string "json:\"password,omitempty\""
+	Password            string "json:\"-\""
+	FirstName           string "json:\"first_name\""
+	LastName            string "json:\"last_name\""
+	Surname             string "json:\"surname,omitempty\""      // nullable
+	PhoneNumber         string "json:\"phone_number,omitempty\"" // nullable
 }
 
 func (u *Users) Validate() error {
 	return validation.ValidateStruct(
 		u,
 		validation.Field(&u.UnencryptedPassword, validation.By(requiredIf(u.Password == "")), validation.Length(6, 100)),
-		validation.Field(&u.PhoneNumber, validation.By(requiredIf(u.PhoneNumber == "")), validation.Match(regexp.MustCompile("^(\\+7|8)[0-9]{10}$"))),
+		validation.Field(&u.PhoneNumber, validation.By(requiredIf(u.PhoneNumber != "")), validation.Match(regexp.MustCompile("^(\\+7|8)[0-9]{10}$"))),
 	)
 }
 
@@ -35,6 +35,10 @@ func (u *Users) BeforeCreate() error {
 		u.Password = enc
 	}
 	return nil
+}
+
+func (u *Users) Sanitize() {
+	u.Password = ""
 }
 
 func encryptString(s string) (string, error) {
