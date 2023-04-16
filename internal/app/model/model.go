@@ -39,13 +39,6 @@ type Lesson struct {
 	LessonStatus bool
 }
 
-type News struct {
-	Id          int
-	Title       string
-	Description string
-	CreatedAt   time.Time // default current_timestamp
-}
-
 type Office struct {
 	Id    int
 	Title string
@@ -74,6 +67,13 @@ type ChildGroups struct {
 type CourseTeacher struct {
 	TeacherId int // reference to the teacher(id)
 	CourseId  int // reference to the course(id)
+}
+
+type News struct {
+	Id          int       `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"` // default current_timestamp
 }
 
 type NewsUsers struct {

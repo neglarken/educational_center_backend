@@ -4,27 +4,46 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"github.com/neglarken/educational_center_backend/internal/app/store"
 	"github.com/sirupsen/logrus"
 )
 
+type ctxKey int8
+
+const (
+	ctxKeyRequestId ctxKey = iota
+	ctxKeyUser      ctxKey = iota
+)
+
 type server struct {
-	router mux.Router
-	logger logrus.Logger
-	store  store.Store
+	router       *mux.Router
+	logger       *logrus.Logger
+	store        store.Store
+	sessionStore sessions.Store
 }
 
-func NewServer(store store.Store) *server {
+func NewServer(store store.Store, sessionStore sessions.Store) *server {
 	s := &server{
-		router: *mux.NewRouter(),
-		logger: *logrus.New(),
-		store:  store,
+		router:       mux.NewRouter(),
+		logger:       logrus.New(),
+		store:        store,
+		sessionStore: sessionStore,
 	}
 	s.logger.Info("server is running on port 8080")
-	s.configureUsersRouter()
+	s.configureRouters()
 
 	return s
+}
+
+func (s *server) configureRouters() {
+	s.router.Use(s.setRequestID)
+	s.router.Use(s.logRequest)
+	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
+	s.configureUsersRouter() // /users
+	s.configureNewsRouter()  // /news
 }
 
 func (s *server) NewSubRouter(str string) *mux.Router {
