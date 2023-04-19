@@ -42,3 +42,15 @@ func (r *NewsRepository) GetById(id int) (*model.News, error) {
 
 	return n, nil
 }
+
+func (r *NewsRepository) GetCount() (*model.CountOfNews, error) {
+	count := &model.CountOfNews{}
+	if err := r.store.db.QueryRow(
+		"SELECT count(*) FROM news",
+	).Scan(
+		&count.Count,
+	); err != nil {
+		return nil, err
+	}
+	return count, nil
+}

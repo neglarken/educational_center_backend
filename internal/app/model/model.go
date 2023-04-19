@@ -80,3 +80,8 @@ type NewsUsers struct {
 	UserId int // reference to the user(id)
 	NewsId int // reference to the news(id)
 }
+
+// custom
+type CountOfNews struct {
+	Count int `json:"count"`
+}

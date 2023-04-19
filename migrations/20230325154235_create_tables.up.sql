@@ -169,3 +169,6 @@ ALTER TABLE news_users
   ADD CONSTRAINT FK_news_TO_news_users
     FOREIGN KEY (news_id)
     REFERENCES news (id);
+
+ALTER TABLE news_users
+  ADD PRIMARY KEY (user_id, news_id);

@@ -26,6 +26,17 @@ func (r *UsersRepository) Create(u *model.Users) error {
 	).Scan(&u.Id)
 }
 
+func (r *UsersRepository) Edit(u *model.Users, id int) error {
+	return r.store.db.QueryRow(
+		"UPDATE users SET first_name = $1, last_name = $2, surname = $3, phone_number = $4 WHERE id = $5 RETURNING id",
+		u.FirstName,
+		u.LastName,
+		u.Surname,
+		u.PhoneNumber,
+		id,
+	).Err()
+}
+
 func (r *UsersRepository) FindByLogin(login string) (*model.Users, error) {
 	u := &model.Users{}
 	if err := r.store.db.QueryRow("SELECT * FROM users WHERE login = $1", login).Scan(

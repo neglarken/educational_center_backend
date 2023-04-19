@@ -8,14 +8,14 @@ import (
 )
 
 type Users struct {
-	Id                  int    "json:\"id\""
-	Login               string "json:\"login\"" // unique
-	UnencryptedPassword string "json:\"password,omitempty\""
-	Password            string "json:\"-\""
-	FirstName           string "json:\"first_name\""
-	LastName            string "json:\"last_name\""
-	Surname             string "json:\"surname,omitempty\""      // nullable
-	PhoneNumber         string "json:\"phone_number,omitempty\"" // nullable
+	Id                  int    `json:"id"`
+	Login               string `json:"login"` // unique
+	UnencryptedPassword string `json:"password,omitempty"`
+	Password            string `json:"-"`
+	FirstName           string `json:"first_name"`
+	LastName            string `json:"last_name"`
+	Surname             string `json:"surname,omitempty"`      // nullable
+	PhoneNumber         string `json:"phone_number,omitempty"` // nullable
 }
 
 func (u *Users) Validate() error {

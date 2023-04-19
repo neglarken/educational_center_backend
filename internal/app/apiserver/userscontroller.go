@@ -15,7 +15,11 @@ const (
 func (s *server) configureUsersRouter() {
 	sub := s.NewSubRouter("/users")
 	sub.HandleFunc("/register", s.HandleUsersCreate()).Methods("POST")
-	sub.HandleFunc("/sessions", s.HandleSessionsCreate()).Methods("POST")
+	sub.HandleFunc("/auth", s.HandleSessionsCreate()).Methods("POST")
+
+	edit := sub.PathPrefix("/edit").Subrouter()
+	edit.Use(s.authUser)
+	edit.HandleFunc("/", s.HandleUsersEdit()).Methods("PUT")
 
 	// /private/...
 	private := s.router.PathPrefix("/private").Subrouter()
@@ -25,12 +29,12 @@ func (s *server) configureUsersRouter() {
 
 func (s *server) HandleUsersCreate() http.HandlerFunc {
 	type request struct {
-		Login               string "json:\"login\""
-		UnencryptedPassword string "json:\"password\""
-		FirstName           string "json:\"first_name\""
-		LastName            string "json:\"last_name\""
-		Surname             string "json:\"surname\""
-		PhoneNumber         string "json:\"phone_number\""
+		Login               string `json:"login"`
+		UnencryptedPassword string `json:"password"`
+		FirstName           string `json:"first_name"`
+		LastName            string `json:"last_name"`
+		Surname             string `json:"surname"`
+		PhoneNumber         string `json:"phone_number"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &request{}
@@ -88,5 +92,31 @@ func (s *server) HandleSessionsCreate() http.HandlerFunc {
 func (s *server) handleWhoAmI() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*model.Users))
+	}
+}
+
+func (s *server) HandleUsersEdit() http.HandlerFunc {
+	type request struct {
+		FirstName   string `json:"first_name"`
+		LastName    string `json:"last_name"`
+		Surname     string `json:"surname"`
+		PhoneNumber string `json:"phone_number"`
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := &request{}
+		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		u := r.Context().Value(ctxKeyUser).(*model.Users)
+		u.FirstName = req.FirstName
+		u.LastName = req.LastName
+		u.Surname = req.Surname
+		u.PhoneNumber = req.PhoneNumber
+		if err := s.store.Users().Edit(u, u.Id); err != nil {
+			s.error(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+		s.respond(w, r, http.StatusCreated, u)
 	}
 }
